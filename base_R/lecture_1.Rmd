@@ -1,0 +1,15 @@
+---
+title: Variables and Objects
+author: Bob Policastro
+output: html_document
+---
+
+The R console itself can be used as a fancy calculator. For example:
+
+```{r}
+1 + 2
+2 * 6
+5 / 5
+2^2
+log2(2)
+```
