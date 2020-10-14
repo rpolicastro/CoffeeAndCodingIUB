@@ -12,6 +12,10 @@ module unload perl
 
 BIOPROJECT='PRJNA388952'
 
+##########################
+## Retrieve fastq Files ##
+##########################
+
 # Get csv with accession numbers.
 
 esearch -db bioproject -query $BIOPROJECT | \
@@ -33,9 +37,23 @@ for SRA in ${DMEL[@]}; do
   fasterq-dump -O sequences $SRA
 done
 
-# sample 500k reads.
+# Sample 100k reads.
 
 for FASTQ in $(find ./sequences -name "*\.fastq"); do
   NEWFILE=sequences/$(basename $FASTQ .fastq)_sampled.fastq
-  seqtk sample -s 100 $FASTQ 500000 > $NEWFILE
+  seqtk sample $FASTQ 100000 > $NEWFILE
 done
+
+###########################
+## fastq Quality Control ##
+###########################
+
+# Make output directory for quality control files.
+
+mkdir -p results/fastqc_reports
+
+## Run fastqc.
+
+FASTQS=$(find ./sequences -name "*sampled\.fastq")
+
+fastqc -o results/fastqc_reports $FASTQS
