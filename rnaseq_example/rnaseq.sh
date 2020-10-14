@@ -39,7 +39,9 @@ done
 
 # Sample 100k reads.
 
-for FASTQ in $(find ./sequences -name "*\.fastq"); do
+FASTQS=($(find ./sequences -name "*\.fastq"))
+
+for FASTQ in ${FASTQS[@]}; do
   NEWFILE=sequences/$(basename $FASTQ .fastq)_sampled.fastq
   seqtk sample $FASTQ 100000 > $NEWFILE
 done
