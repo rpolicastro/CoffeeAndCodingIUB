@@ -19,9 +19,9 @@ BIOPROJECT='PRJNA388952'
 # Get csv with accession numbers.
 
 esearch -db bioproject -query $BIOPROJECT | \
-elink -target sra | \
-efetch -format runinfo > \
-run_info.csv
+  elink -target sra | \
+  efetch -format runinfo > \
+  run_info.csv
 
 # Select two example Dmel files.
 
@@ -54,8 +54,71 @@ done
 
 mkdir -p results/fastqc_reports
 
-## Run fastqc.
+# Run fastqc.
 
 FASTQS=$(find ./sequences -name "*sampled\.fastq")
 
 fastqc -o results/fastqc_reports $FASTQS
+
+################################
+## Generate STAR Genome Index ##
+################################
+
+# Make a directory to store the genome files.
+
+mkdir -p genome
+
+# Download and unpack the genome assembly.
+
+curl ftp://ftp.ensembl.org/pub/release-101/fasta/drosophila_melanogaster/dna/Drosophila_melanogaster.BDGP6.28.dna_sm.toplevel.fa.gz | \
+gunzip > ./genome/assembly.fasta
+
+# Download and unpack the genome annotation.
+
+curl ftp://ftp.ensembl.org/pub/release-101/gtf/drosophila_melanogaster/Drosophila_melanogaster.BDGP6.28.101.chr.gtf.gz | \
+gunzip > ./genome/annotation.gtf
+
+# Create a directory to store the index.
+
+mkdir -p genome/index
+
+# Create the STAR genome index.
+# --genomeSAindexNbases 12 was recommended by software.
+
+STAR \
+  --runThreadN 4 \
+  --runMode genomeGenerate \
+  --genomeDir genome/index \
+  --genomeFastaFiles genome/assembly.fasta \
+  --sjdbGTFfile genome/annotation.gtf \
+  --genomeSAindexNbases 12
+
+###########################
+## Align Reads to Genome ##
+###########################
+
+# Create an output directory for aligned reads.
+
+mkdir -p results/aligned
+
+# Align the reads.
+
+FASTQS=($(find ./sequences -name "*\sampled.fastq"))
+
+for FASTQ in ${FASTQS[@]}; do
+  PREFIX=results/aligned/$(basename $FASTQ .fastq)_
+  STAR \
+    --runThreadN 4 \
+    --genomeDir genome/index \
+    --readFilesIn $FASTQ \
+    --outFileNamePrefix $PREFIX \
+    --outSAMtype BAM SortedByCoordinate
+done
+
+# Indexing the BAM files.
+
+BAMS=($(find ./results/aligned -name "*\.bam"))
+
+for BAM in ${BAMS[@]}; do
+  samtools index $BAM
+done
