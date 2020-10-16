@@ -122,3 +122,27 @@ BAMS=($(find ./results/aligned -name "*\.bam"))
 for BAM in ${BAMS[@]}; do
   samtools index $BAM
 done
+
+####################
+## Count Features ##
+####################
+
+# Create an output directory for read counts.
+
+mkdir -p results/counts
+
+# Count reads.
+
+BAMS=$(find ./results/aligned -name "*\.bam")
+
+featureCounts \
+  -a genome/annotation.gtf \
+  -o results/counts/counts.tsv \
+  -t exon \
+  -g gene_name \
+  --largestOverlap \
+  --readExtension3 150 \
+  --primary \
+  -s 0 \
+  -T 4 \
+  ${BAMS}

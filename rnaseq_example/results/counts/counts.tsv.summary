@@ -1,0 +1,15 @@
+Status	./results/aligned/SRR6181200_sampled_Aligned.sortedByCoord.out.bam	./results/aligned/SRR7244018_sampled_Aligned.sortedByCoord.out.bam
+Assigned	5655	20568
+Unassigned_Unmapped	0	0
+Unassigned_Read_Type	0	0
+Unassigned_Singleton	0	0
+Unassigned_MappingQuality	0	0
+Unassigned_Chimera	0	0
+Unassigned_FragmentLength	0	0
+Unassigned_Duplicate	0	0
+Unassigned_MultiMapping	374321	240255
+Unassigned_Secondary	0	0
+Unassigned_NonSplit	0	0
+Unassigned_NoFeatures	279	262
+Unassigned_Overlapping_Length	0	0
+Unassigned_Ambiguity	97	899
