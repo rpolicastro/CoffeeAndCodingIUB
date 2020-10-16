@@ -11,6 +11,8 @@ module unload perl
 # Variables.
 
 BIOPROJECT='PRJNA388952'
+ASSEMBLY='ftp://ftp.ensembl.org/pub/release-101/fasta/drosophila_melanogaster/dna/Drosophila_melanogaster.BDGP6.28.dna_sm.toplevel.fa.gz'
+ANNOTATION='ftp://ftp.ensembl.org/pub/release-101/gtf/drosophila_melanogaster/Drosophila_melanogaster.BDGP6.28.101.chr.gtf.gz'
 
 ##########################
 ## Retrieve fastq Files ##
@@ -70,13 +72,11 @@ mkdir -p genome
 
 # Download and unpack the genome assembly.
 
-curl ftp://ftp.ensembl.org/pub/release-101/fasta/drosophila_melanogaster/dna/Drosophila_melanogaster.BDGP6.28.dna_sm.toplevel.fa.gz | \
-gunzip > ./genome/assembly.fasta
+curl $ASSEMBLY | gunzip > ./genome/assembly.fasta
 
 # Download and unpack the genome annotation.
 
-curl ftp://ftp.ensembl.org/pub/release-101/gtf/drosophila_melanogaster/Drosophila_melanogaster.BDGP6.28.101.chr.gtf.gz | \
-gunzip > ./genome/annotation.gtf
+curl $ANNOTATION | gunzip > ./genome/annotation.gtf
 
 # Create a directory to store the index.
 
