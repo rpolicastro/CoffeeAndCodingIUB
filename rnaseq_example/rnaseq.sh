@@ -36,7 +36,7 @@ mkdir -p sequences
 # Download fastq files.
 
 for SRA in ${DMEL[@]}; do
-  fasterq-dump -O sequences $SRA
+  fasterq-dump -O ./sequences $SRA
 done
 
 # Sample 100k reads.
