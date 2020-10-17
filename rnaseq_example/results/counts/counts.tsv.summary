@@ -1,15 +1,15 @@
-Status	./results/aligned/SRR6181200_sampled_Aligned.sortedByCoord.out.bam	./results/aligned/SRR7244018_sampled_Aligned.sortedByCoord.out.bam
-Assigned	5655	20568
-Unassigned_Unmapped	0	0
-Unassigned_Read_Type	0	0
-Unassigned_Singleton	0	0
-Unassigned_MappingQuality	0	0
-Unassigned_Chimera	0	0
-Unassigned_FragmentLength	0	0
-Unassigned_Duplicate	0	0
-Unassigned_MultiMapping	374321	240255
-Unassigned_Secondary	0	0
-Unassigned_NonSplit	0	0
-Unassigned_NoFeatures	279	262
-Unassigned_Overlapping_Length	0	0
-Unassigned_Ambiguity	97	899
+Status	./results/aligned/SRR5639586_Aligned.sortedByCoord.out.bam	./results/aligned/SRR7243504_Aligned.sortedByCoord.out.bam	./results/aligned/SRR7243502_Aligned.sortedByCoord.out.bam	./results/aligned/SRR7243505_Aligned.sortedByCoord.out.bam	./results/aligned/SRR5639581_Aligned.sortedByCoord.out.bam	./results/aligned/SRR7243503_Aligned.sortedByCoord.out.bam	./results/aligned/SRR6181119_Aligned.sortedByCoord.out.bam	./results/aligned/SRR7243936_Aligned.sortedByCoord.out.bam	./results/aligned/SRR7243506_Aligned.sortedByCoord.out.bam	./results/aligned/SRR5639584_Aligned.sortedByCoord.out.bam	./results/aligned/SRR5639582_Aligned.sortedByCoord.out.bam	./results/aligned/SRR6181118_Aligned.sortedByCoord.out.bam	./results/aligned/SRR7243937_Aligned.sortedByCoord.out.bam	./results/aligned/SRR7243507_Aligned.sortedByCoord.out.bam	./results/aligned/SRR5639585_Aligned.sortedByCoord.out.bam	./results/aligned/SRR5639583_Aligned.sortedByCoord.out.bam
+Assigned	11582087	6235550	7929891	2349504	8143398	7501510	2443288	7257054	13446749	13771808	7674543	6457264	14871503	33988501	11853568	7422620
+Unassigned_Unmapped	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+Unassigned_Read_Type	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+Unassigned_Singleton	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+Unassigned_MappingQuality	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+Unassigned_Chimera	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+Unassigned_FragmentLength	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+Unassigned_Duplicate	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+Unassigned_MultiMapping	992817	236400	352238	132209	440522	346819	228578	344471	694275	1187279	418030	303130	776640	1812792	1053507	417940
+Unassigned_Secondary	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+Unassigned_NonSplit	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+Unassigned_NoFeatures	133398	32939	43011	24554	46322	37648	26407	33781	154066	162240	40036	35677	166280	356266	127678	35832
+Unassigned_Overlapping_Length	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0
+Unassigned_Ambiguity	472550	113630	138384	94576	142213	134803	99269	132888	547057	562256	138276	117662	604631	1385077	485378	136253

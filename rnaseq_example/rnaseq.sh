@@ -20,14 +20,12 @@ ANNOTATION='ftp://ftp.ensembl.org/pub/release-101/gtf/drosophila_melanogaster/Dr
 
 # Get csv with accession numbers.
 
-esearch -db bioproject -query $BIOPROJECT | \
+esearch -db bioproject -query PRJNA388952 | \
   elink -target sra | \
-  efetch -format runinfo > \
-  run_info.csv
-
-# Select two example Dmel files.
-
-DMEL=($(grep 'melanogaster' run_info.csv | cut -f1 -d, | head -n 2))
+  efetch -format docsum | \
+  xtract -pattern DocumentSummary -element Experiment@name,Run@acc |
+  egrep -v "ERCC|leftover" | egrep "orgR_GO" > \
+  run_info.tsv
 
 # Make a directory to download the fastq files to.
 
@@ -35,17 +33,10 @@ mkdir -p sequences
 
 # Download fastq files.
 
-for SRA in ${DMEL[@]}; do
-  fasterq-dump -O ./sequences $SRA
-done
+ACCESSIONS=($(cut -f2,3 run_info.tsv))
 
-# Sample 100k reads.
-
-FASTQS=($(find ./sequences -name "*\.fastq"))
-
-for FASTQ in ${FASTQS[@]}; do
-  NEWFILE=sequences/$(basename $FASTQ .fastq)_sampled.fastq
-  seqtk sample $FASTQ 100000 > $NEWFILE
+for ACCESSION in ${ACCESSIONS[@]}; do
+  fasterq-dump -e 8 -O ./sequences $ACCESSION
 done
 
 ###########################
@@ -58,9 +49,9 @@ mkdir -p results/fastqc_reports
 
 # Run fastqc.
 
-FASTQS=$(find ./sequences -name "*sampled\.fastq")
+FASTQS=$(find ./sequences -name "*\.fastq")
 
-fastqc -o results/fastqc_reports $FASTQS
+fastqc -t 8 -o results/fastqc_reports $FASTQS
 
 ################################
 ## Generate STAR Genome Index ##
@@ -103,12 +94,12 @@ mkdir -p results/aligned
 
 # Align the reads.
 
-FASTQS=($(find ./sequences -name "*\sampled.fastq"))
+FASTQS=($(find ./sequences -name "*\.fastq"))
 
 for FASTQ in ${FASTQS[@]}; do
   PREFIX=results/aligned/$(basename $FASTQ .fastq)_
   STAR \
-    --runThreadN 4 \
+    --runThreadN 6 \
     --genomeDir genome/index \
     --readFilesIn $FASTQ \
     --outFileNamePrefix $PREFIX \
@@ -143,6 +134,6 @@ featureCounts \
   --largestOverlap \
   --readExtension3 150 \
   --primary \
-  -s 0 \
-  -T 4 \
+  -s 2 \
+  -T 6 \
   ${BAMS}
