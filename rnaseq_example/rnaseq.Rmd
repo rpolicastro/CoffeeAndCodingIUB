@@ -16,9 +16,13 @@ library("EnhancedVolcano")
 
 #### Loading Sample Info
 
+Read in the run info file we retrieved from Entrez Direct.
+
 ```{r message=FALSE}
 runinfo <- "run_info.tsv" %>%
+  # Read in the run info tab separated file.
   read_tsv(col_names=c("info", "SRR_1", "SRR_2")) %>%
+  # The run info is in one column, so separate into multiple columns.
   separate(info, into=c("GSM", "name", "organism", "seqtype"), sep="[;:] ")
 
 knitr::kable(runinfo)
@@ -26,10 +30,15 @@ knitr::kable(runinfo)
 
 #### Loading Counts
 
+Load the counts file from featureCounts.
+
 ```{r message=FALSE}
 counts <- "results/counts/counts.tsv" %>%
+  # Read in the counts tab separated file.
   read_tsv(skip=1) %>%
+  # We don't need the genomic range columns for the genes.
   select(!c(Chr, Start, End, Strand, Length)) %>%
+  # The columns contain the full path and file name of the bams, so extract just the accession number.
   rename_with(~str_extract(.x, "(?<=aligned/)[[:alnum:]]+(?=_Aligned)"), !Geneid)
 
 knitr::kable(counts[1:5, 1:5])
@@ -55,9 +64,14 @@ knitr::kable(counts[1:5, 1:5])
 
 #### Create Count Matrix
 
+DESeq2 and edgeR require the counts to be in a proper matrix.
+The rownames should be genes, and the columns samples.
+
 ```{r message=FALSE}
 count_matrix <- counts %>%
+  # First, move the gene names to the rownames.
   column_to_rownames("Geneid") %>%
+  # You can then convert to matrix.
   as.matrix
 
 knitr::kable(count_matrix[1:5, 1:5])
@@ -65,16 +79,21 @@ knitr::kable(count_matrix[1:5, 1:5])
 
 #### Create Design Table
 
+The design table should have sample names as rownames,
+And then columns representing the factor levels in your data.
+
 ```{r message=FALSE}
-coldata <- count_matrix %>%
-  colnames %>%
-  {tibble(sample=.)} %>%
-  separate(sample, into=c("accession", "run"), sep="(?<=^SRR[[:digit:]]{7})_") %>%
-  mutate(name=str_extract(run, "[[:alnum:]_]+(?=_r[[:digit:]]$)")) %>%
-  mutate(name=factor(name, levels=c("orgR_GO_f", "orgR_GO_m"))) %>%
-  group_by(run) %>%
-  mutate(run=str_c(name, sprintf("run_%s", cur_group_id()), sep="_")) %>%
-  column_to_rownames("accession")
+coldata <- tibble(
+  # The sample names are the column names in the count matrix.
+  sample=colnames(count_matrix),
+  # The important factor level in this experiment is fly sex.
+  sex=str_extract(colnames(count_matrix), "(?<=_)[mf](?=_)"),
+  # Each pair of technical replicates should have their own distinct designation.
+  replicate_group=str_extract(colnames(count_matrix), "[mf]_r[[:digit:]]+$")
+)
+
+# move the sample name to the rownames.
+coldata <- column_to_rownames(coldata, "sample")
 
 knitr::kable(coldata)
 ```
@@ -83,15 +102,19 @@ knitr::kable(coldata)
 
 ```{r message=FALSE}
 dds <- count_matrix %>%
-  DESeqDataSetFromMatrix(coldata, design=~name) %>%
-  collapseReplicates(coldata$run) %>%
+  # First convert the count matrix to a DESeq2 object.
+  # You also need to provide the column data, and expermental design.
+  DESeqDataSetFromMatrix(coldata, design=~sex) %>%
+  # This collapses the technical replicates.
+  collapseReplicates(coldata$replicate_group) %>%
+  # The function that does the differential expression.
   DESeq
 
 degs <- dds %>%
+  # The results function returns a table of results from DE.
   results %>%
-  as.data.frame %>%
-  rownames_to_column("gene") %>%
-  as_tibble %>%
+  as_tibble(rownames="gene") %>%
+  # Ordering the column by adjusted p-value.
   arrange(padj)
 
 knitr::kable(head(degs))
@@ -101,11 +124,12 @@ knitr::kable(head(degs))
 
 ```{r message=FALSE}
 rlog_counts <- dds %>%
+  # Normalize the counts while taking into consideration sample type.
   rlog(blind=FALSE) %>%
+  # The assay function returns a matrix of counts, with rownames as genes.
   assay %>%
-  as.data.frame %>%
-  rownames_to_column("gene") %>%
-  as_tibble
+  # Convert the matrix to a data.frame.
+  as_tibble(rownames="gene")
 
 knitr::kable(rlog_counts[1:5, 1:5])
 ```
@@ -114,23 +138,36 @@ knitr::kable(rlog_counts[1:5, 1:5])
 
 #### PCA
 
-```{r message=FALSE}
+To color the points by sex instead of sample,
+you can include a metadata table with sample as rowname
+and the desired groups as columns.
 
-metadata <- rlog_counts %>%
-  column_to_rownames("gene") %>%
-  colnames %>%
-  {data.frame(type=ifelse(str_detect(., "_m_"), "male", "female"))} %>%
-  magrittr::set_rownames(colnames(column_to_rownames(rlog_counts, "gene")))
-  
+```{r message=FALSE}
+metadata <- tibble(
+  # The samples are the column names from the rlog_counts.
+  sample=colnames(rlog_counts)[2:ncol(rlog_counts)],
+  # Extracting the sex status from the column names of rlog_counts.
+  group=str_extract(colnames(rlog_counts)[2:ncol(rlog_counts)], "^[mf]")
+)
+
+# Move the sample name to rownames.
+metadata <- column_to_rownames(metadata, "sample")
+
+knitr::kable(metadata)
+```
+
+```{r message=FALSE}
 pca_results <- rlog_counts %>%
+  # First move the gene column to rownames.
   column_to_rownames("gene") %>%
+  # Perform pca and include your metadata table.
   pca(metadata=metadata)
 ```
 
 PCA biplot.
 
 ```{r message=FALSE}
-biplot(pca_results, colby="type")
+biplot(pca_results, colby="group")
 ```
 
 PCA loadings.
@@ -141,6 +178,42 @@ plotloadings(pca_results, rangeRetain=0.01)
 
 #### Volcano
 
+Using the EnhancedVolcano library to make a volcano plot of results.
+
 ```{r message=FALSE}
-EnhancedVolcano(degs, degs$gene, "log2FoldChange", "padj")
+# Only include the gene names of the top 25 DEGs by adjust p-value.
+top_degs <- degs %>%
+  # Select the top 25 DEGs by minimal adjusted p-value.
+  slice_min(padj, n=25) %>%
+  # Return just the gene names from the data.frame.
+  pull("gene")
+
+EnhancedVolcano(
+  degs, degs$gene, "log2FoldChange", "padj",
+  selectLab=top_degs
+)
+```
+
+#### Heatmap
+
+Make heatmap of top 250 DEGs by adjusted p-value..
+
+```{r message=FALSE}
+top_degs <- degs %>%
+  # Get the top 250 DEGs by minimal adjust p-value.
+  slice_min(padj, n=250) %>%
+  # Return just the gene names.
+  pull("gene")
+
+rlog_counts %>%
+  # Only keep the genes that we pulled from above.
+  filter(gene %in% select_degs) %>%
+  # Move the gene names to the rownames, and convert to matrix.
+  column_to_rownames("gene") %>%
+  as.matrix %>%
+  # Plot the heatmap, clustering by rows (genes).
+  Heatmap(
+    cluster_rows=TRUE, cluster_columns=FALSE,
+    show_row_dend=FALSE, show_row_names=FALSE
+  )
 ```
