@@ -1,0 +1,68 @@
+
+---
+
+I. Exploring text and tabular data.
+
+a) What functions did we learn to explore text files and tabular data?
+
+b) How would I print out the first 10 lines of a text file? The last 10 lines?
+
+c) How can I print out the entire contents of a text file to the command line?
+
+d) If I don't want to print out all the contents of a text file, How could I neatly explore it?
+
+e) I have a tab separated file that I want to explore, what combination of functions nicely formats the table for viewing?
+
+---
+
+II. Chaining functions.
+
+a) What is it called when you immediatly send the output of one function to another function?
+
+b) What symbol is used for this?
+
+c) Write an example where you use grep to search for a word in the first 10 lines of a text file.
+
+---
+
+III. Variables and Data Types.
+
+a) What is a variable?
+
+b) How do you create a variable in bash.
+
+c) Save a line of text into a variable and print it to screen.
+
+---
+
+IV. Arrays and Capturing Function Outputs.
+
+a) What is an array versus a string?
+
+b) How do you access the contents of an array?
+
+c) How do you save the results of a function to a variable?
+
+d) Does this create a string or array?
+
+e) How do I capture the results of a function in a variable, but as an array?
+
+f) Capture the names of files and folders in a variable as a string.
+
+g) Capture the names of the files and folders in a variable as an array.
+
+---
+
+V. For Loops
+
+a) What is a for loop?
+
+b) Why would you use a for loop?
+
+c) How is a for loop structured in bash?
+
+d) Make a for loop that loops over the contents of a directory and prints out each directory or file with something added to it.
+
+e) Make a for loop that prints out the names of files with the file extension removed.
+
+---
