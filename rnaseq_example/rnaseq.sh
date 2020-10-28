@@ -103,7 +103,7 @@ mkdir -p results/aligned
 
 # Align the reads.
 
-FASTQS=($(find ./sequences -name "*\sampled.fastq"))
+FASTQS=($(find ./sequences -name "*sampled.fastq"))
 
 for FASTQ in ${FASTQS[@]}; do
   PREFIX=results/aligned/$(basename $FASTQ .fastq)_

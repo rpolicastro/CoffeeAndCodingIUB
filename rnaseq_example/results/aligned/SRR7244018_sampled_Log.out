@@ -1920,7 +1920,7 @@ Number of real (reference) chromosomes= 1870
 1869	211000022280427	564	626262016
 1870	211000022279089	544	626524160
 --sjdbOverhang = 100 taken from the generated genome
-Started loading the genome: Fri Oct 16 11:46:08 2020
+Started loading the genome: Wed Oct 21 16:00:26 2020
 
 Genome: size given as a parameter = 638902383
 SA: size given as a parameter = 1275687801
@@ -1934,17 +1934,17 @@ Loading Genome ... done! state: good=1 eof=0 fail=0 bad=0; loaded 638902383 byte
 SA file size: 1275687801 bytes; state: good=1 eof=0 fail=0 bad=0
 Loading SA ... done! state: good=1 eof=0 fail=0 bad=0; loaded 1275687801 bytes
 Loading SAindex ... done: 97867203 bytes
-Finished loading the genome: Fri Oct 16 11:46:14 2020
+Finished loading the genome: Wed Oct 21 16:00:34 2020
 
 Processing splice junctions database sjdbN=60279,   pGe.sjdbOverhang=100 
 alignIntronMax=alignMatesGapMax=0, the max intron size will be approximately determined by (2^winBinNbits)*winAnchorDistNbins=589824
 Created thread # 1
 Created thread # 2
 Created thread # 3
-Thread #1 end of input stream, nextChar=-1
-Completed: thread #0
-Completed: thread #2
+Thread #0 end of input stream, nextChar=-1
 Completed: thread #3
+Completed: thread #2
+Completed: thread #1
 BAM sorting: 261984 mapped reads
 BAM sorting bins genomic start loci:
 1	1	21009310
@@ -1995,10 +1995,10 @@ BAM sorting bins genomic start loci:
 46	1475	571
 47	1509	890
 48	1680	33
-Completed: thread #1
+Completed: thread #0
 Joined thread # 1
 Joined thread # 2
 Joined thread # 3
-Oct 16 12:26:08 ..... started sorting BAM
+Oct 21 16:01:09 ..... started sorting BAM
 Max memory needed for sorting = 1200457
 ALL DONE!
