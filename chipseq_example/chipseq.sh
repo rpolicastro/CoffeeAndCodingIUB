@@ -59,7 +59,7 @@ mkdir -p results/fastqc_reports
 
 # Run fastqc.
 
-FASTQS=$(find ./sequences -name "*sampled\.fastq")
+FASTQS=$(find ./sequences -name "*sampled*fastq")
 
 fastqc -o results/fastqc_reports $FASTQS
 
@@ -85,4 +85,34 @@ bowtie2-build --threads 4 -f genome/assembly.fasta genome/index/scer
 ## Align Reads with Bowtie2 ##
 ##############################
 
+# Make a directory to store the aligned reads.
 
+mkdir -p results/aligned
+
+# Align the reads.
+
+for ACCESSION in ${ACCESSIONS[@]}; do
+  R1=sequences/${ACCESSION}_1_sampled.fastq
+  R2=sequences/${ACCESSION}_2_sampled.fastq
+
+  bowtie2 \
+    -x genome/index/scer \
+    -1 $R1 \
+    -2 $R2 \
+    --no-mixed \
+    --no-unal \
+    -p 4 \
+    -S results/aligned/${ACCESSION}.sam
+done
+
+# Convert sams to coordinate sorted and indexed bam.
+
+for ACCESSION in ${ACCESSIONS[@]}; do
+  samtools sort \
+    -o results/aligned/${ACCESSION}.bam \
+    -O bam \
+    -@ 4 \
+    results/aligned/${ACCESSION}.sam
+
+  samtools index results/aligned/${ACCESSION}.bam
+done
