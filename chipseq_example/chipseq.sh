@@ -2,7 +2,7 @@
 
 # Remember to activate your environment.
 
-conda activate rnaseq
+conda activate chipseq
 
 # Unload system perl for compatability with entrez-direct.
 
@@ -116,3 +116,88 @@ for ACCESSION in ${ACCESSIONS[@]}; do
 
   samtools index results/aligned/${ACCESSION}.bam
 done
+
+#############################
+## Peak Calling with MACS2 ##
+#############################
+
+# Make a directory to store the results.
+
+mkdir -p results/peaks
+
+# Call peaks using MACS2.
+
+macs2 callpeak \
+  -t results/aligned/SRR1947819.bam \
+  -c results/aligned/SRR1947777.bam \
+  -f BAMPE \
+  -g 1.2e+7 \
+  --outdir results/peaks \
+  -n Reb1_30s
+
+##########################
+## Bigwig File Creation ##
+##########################
+
+# Create an output directory for bigwig files.
+
+mkdir -p results/bigwigs
+
+# Convert to bigwigs using deeptools.
+
+for ACCESSION in ${ACCESSIONS[@]}; do
+  bamCoverage \
+    -b results/aligned/${ACCESSION}.bam \
+    -o results/bigwigs/${ACCESSION}.bigwig \
+    -of bigwig \
+    -p 4 \
+    --normalizeUsing CPM
+done
+
+########################
+## Generate a Heatmap ##
+########################
+
+# Download the genome annotation.
+
+curl $ANNOTATION | gunzip > ./genome/annotation.gtf
+
+# Create a bed file from the annotation file.
+
+conda activate agat
+
+agat_convert_sp_gff2bed.pl \
+  --gff genome/annotation.gtf \
+  -o genome/annotation.bed
+
+conda deactivate
+
+# Create an output directory for matrix and heatmap.
+
+mkdir -p results/heatmaps
+
+# Compute a count matrix.
+
+computeMatrix reference-point \
+  -R genome/annotation.bed \
+  -S results/bigwigs/SRR1947819.bigwig results/bigwigs/SRR1947777.bigwig \
+  -o results/heatmaps/Reb1_30s.matrix \
+  --referencePoint TSS \
+  -b 500 \
+  -a 500 \
+  -bs 50 \
+  --sortRegions descend \
+  --sortUsingSamples 1 \
+  --missingDataAsZero \
+  --samplesLabel Reb1_30s Free_MNase_30s \
+  -p 4
+
+# Create the heatmap.
+
+plotHeatmap \
+  -m results/heatmaps/Reb1_30s.matrix \
+  -o results/heatmaps/Reb1_30s.pdf \
+  --colorMap viridis \
+  --heatmapHeight 12 \
+  --heatmapWidth 3 \
+  --plotFileFormat pdf
