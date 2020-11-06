@@ -1,0 +1,110 @@
+---
+title: "ChIP-seq R Analysis"
+author: "Bob Policastro"
+output:
+  md_document:
+    variant: gfm
+---
+
+```{r message=FALSE}
+library("tidyverse")
+library("rtracklayer")
+library("ChIPseeker")
+library("GenomicFeatures")
+library("clusterProfiler")
+library("org.Sc.sgd.db")
+```
+
+### Prepare Genome Annotation
+
+Use the GenomicFeatures library to load the GTF file as a TxDb object.
+This will be used for annotation of genomic ranges later.
+
+```{r message=FALSE, warning=FALSE}
+anno <- makeTxDbFromGFF("genome/annotation.gtf")
+```
+
+```{r echo=FALSE}
+print(anno)
+```
+
+### Prepare Peaks
+
+The peak ranges are contained within the narrowPeaks file from MACS2.
+This is a BED file with some extra columns that can be loaded with
+  the rtracklayer library into a GRanges object.
+
+```{r message=FALSE}
+peaks <- import(
+  "results/peaks/Reb1_30s_peaks.narrowPeak",
+  format="BED",
+  extraCols=c(
+    signal="numeric", neg_log10_pval="numeric",
+    neg_log10_qval="numeric", peak="numeric"
+  )
+)
+```
+
+```{r echo=FALSE}
+print(peaks)
+```
+
+### Coverage Plot
+
+Plot peak strength over chromosomes.
+
+```{r message=FALSE}
+covplot(peaks, weightCol="peak")
+```
+
+### Peak Annotation
+
+Annotate peaks to the closest gene.
+
+```{r message=FALSE, warning=FALSE}
+peak_anno <- annotatePeak(peaks, tssRegion=c(-500, 250), TxDb=anno)
+```
+
+```{r echo=FALSE}
+print(peak_anno)
+```
+
+### Peak Genomic Distribution Plot
+
+```{r message=FALSE, fig.height=2}
+plotAnnoBar(peak_anno)
+```
+
+### Pathway Analysis
+
+Get genes with a peak.
+
+```{r message=FALSE}
+peak_genes <- seq2gene(
+  peaks, tssRegion=c(-500, 250),
+  flankDistance=500, TxDb=anno
+)
+```
+
+```{r echo=FALSE}
+head(peak_genes)
+```
+
+Enrichment analysis using the Reactome Databse.
+
+```{r message=FALSE}
+ont <- enrichGO(
+  peak_genes, OrgDb=org.Sc.sgd.db, ont="BP",
+  keyType="ENSEMBL"
+)
+```
+
+```{r echo=FALSE}
+print(as_tibble(ont))
+```
+
+Enrichment dot-plot.
+
+```{r message=FALSE, fig.width=8}
+dotplot(ont)
+```
