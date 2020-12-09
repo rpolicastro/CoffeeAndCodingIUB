@@ -163,6 +163,7 @@ done
 curl $ANNOTATION | gunzip > ./genome/annotation.gtf
 
 # Create a bed file from the annotation file.
+# remember to unload carbonate PERL: 'module unload perl'
 
 conda activate agat
 
